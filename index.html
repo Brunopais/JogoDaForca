@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- TOPO -->
+    <h1>Jogo da Forca</h1>
+    <img id="imagem" src="img/forca0.png">
+    <div id="exibicao-palavra"></div>
+    <input type="text" id="entrada-letra" placeholder="Chute uma letra" maxlength="1">
+    <button id="btn-chutar" onclick="chutarLetra()">Chutar</button>
+
+    <!-- BAIXO -->
+    <h2>Letras Chutadas</h2>
+    <div id="letras-chutadas"></div>
+    <div id="mensagem">Você ganhou!</div><br>
+    <div style="text-align: center;">
+        <button id="botao-reiniciar" onclick="iniciarJogo()">Recomeçar</button>
+    </div>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // LISTA DE PALAVRAS PARA O JOGO
+        const listaPalavras = ['javascript', 'html', 'css', 'youtube'];
+
+        let palavraEscolhida; // Guarda a palavra sorteada
+        let exibicaoPalavra; // Guarda como a palavra será exibida (com "_")
+        let letrasChutadas; // Guarda as letras já digitadas
+        let tentativasRestantes; // Número de tentativas que o jogador ainda tem
+        let numeroErros; // Conta quantos erros foram cometidos
+
+        // FUNÇÃO PARA INICIAR O JOGO
+        function iniciarJogo() {
+            document.getElementById('botao-reiniciar').style.display = 'none';
+            document.getElementById('entrada-letra').disabled = false;
+
+            // ESCOLHER UMA PALAVRA ALEATÓRIA DA LISTA
+            palavraEscolhida = listaPalavras[Math.floor(Math.random() * listaPalavras.length)];
+            console.log(palavraEscolhida);
+
+            // INICIALIZAR A EXIBIÇÃO COM UNDERSCORES "_"
+            exibicaoPalavra = Array(palavraEscolhida.length).fill('_');
+            console.log(exibicaoPalavra);
+
+            // INICIALIZAR A LISTA DE LETRAS CHUTADAS
+            letrasChutadas = []; // Zera a lista de chutes
+
+            // DEFINIR O NÚMERO MÁXIMO DE TENTATIVAS
+            tentativasRestantes = 7;
+
+            // INICIALIZA O NÚMERO DE ERROS
+            numeroErros = 0; // Começa sem erros
+
+            atualizarExibicao(); // Atualiza a tela com os dados iniciais
+        }
+
+        // FUNÇÃO PARA ATUALIZAR O QUE O JOGADOR VÊ NA TELA
+        function atualizarExibicao() {
+            document.getElementById("exibicao-palavra").innerText = exibicaoPalavra.join(' ');
+            document.getElementById("letras-chutadas").innerText = `${letrasChutadas.join(', ')}`;
+            document.getElementById('mensagem').innerText = '';
+            document.getElementById("imagem").src = `img/forca${numeroErros}.png`;
+
+            // VERIFICAR SE O JOGO TERMINOU
+            if (tentativasRestantes === 0) { // Se acabou as tentativas
+                encerrarJogo('VOCÊ MORREU!');
+            } else if (!exibicaoPalavra.includes('_')) { // Se não há mais "_" na palavra
+                encerrarJogo('Parabéns! Você venceu!');
+            }
+        }
+
+        // FUNÇÃO PARA TRATAR QUANDO O JOGADOR CHUTA UMA LETRA
+        function chutarLetra() {
+            const entradaLetra = document.getElementById('entrada-letra'); // Pega o campo de entrada
+            const letra = entradaLetra.value.toLowerCase(); // Pega a letra digitada em minúsculo
+
+            if (!letra.match(/[a-zà-ùç]/i)) { // Valida se é uma letra
+                alert('Por favor, insira uma letra válida.'); // Aviso se não for letra
+                return; // Sai da função
+            }
+
+            if (letrasChutadas.includes(letra)) { // Verifica se letra já foi usada
+                alert('Você já tentou esta letra. Tente outra.'); // Aviso de repetição
+                return; // Sai da função
+            }
+
+            letrasChutadas.push(letra); // Adiciona letra chutada à lista
+
+            if (palavraEscolhida.includes(letra)) { // Se a letra está na palavra
+                for (let i = 0; i < palavraEscolhida.length; i++) { // Percorre a palavra
+                    if (palavraEscolhida[i] === letra) { // Se achar a letra
+                        exibicaoPalavra[i] = letra; // Substitui "_" pela letra certa
+                    }
+                }
+            } else { // Se a letra não está na palavra
+                tentativasRestantes--; // Diminui tentativas
+                numeroErros++; // Aumenta contador de erros
+            }
+
+            entradaLetra.value = ''; // Limpa o campo de texto
+            atualizarExibicao(); // Atualiza a tela
+        }
+
+        // FUNÇÃO PARA ENCERRAR O JOGO
+        function encerrarJogo(mensagem) {
+            document.getElementById('entrada-letra').disabled = true; // Desativa campo de entrada
+            document.getElementById('mensagem').style.display = 'block'; // Mostra mensagem final
+            document.getElementById('mensagem').innerText = mensagem; // Define a mensagem (ganhou/perdeu)
+            document.getElementById('botao-reiniciar').style.display = 'block'; // Mostra botão reiniciar
+        }
+
+        window.load = iniciarJogo(); // Inicia o jogo ao carregar a página
+    </script>
+</body>
+
+</html>
